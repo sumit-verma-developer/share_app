@@ -1,10 +1,16 @@
 import * as React from 'react';
-import {  Text,View } from 'react-native';
+import Navigation from './src/navigation/Navigation';
+import {requestPhotoPermission} from './src/utils/Constants';
+import {checkFilePermissions} from './src/utils/libraryHelpers';
+import {Platform} from 'react-native';
 
-export default function componentName() {
-  return (
-    <View>
-      <Text> hgjgggugugujgg</Text>
-     </View>
-  );
-}
+const App = () => {
+  React.useEffect(() => {
+    requestPhotoPermission();
+    checkFilePermissions(Platform.OS);
+  }, []);
+
+  return <Navigation />;
+};
+
+export default App;
