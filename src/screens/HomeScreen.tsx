@@ -3,6 +3,9 @@ import React, {FC} from 'react';
 import {commonStyles} from '../styles/commonStyles';
 import HomeHeader from '../components/home/HomeHeader';
 import Misc from '../components/home/Misc';
+import Options from '../components/home/Options';
+import SendReceiveButton from '../components/home/SendReceiveButton';
+import AbsoluteQRBottom from '../components/home/AbsoluteQRBottom';
 
 const HomeScreen: FC = () => {
   return (
@@ -12,11 +15,12 @@ const HomeScreen: FC = () => {
         contentContainerStyle={{paddingBottom: 100, padding: 15}}
         showsVerticalScrollIndicator={false}
         bounces={false}>
-        {/* <SendReceiveButton /> */}
+        <SendReceiveButton />
 
-        {/* <Options/> */}
+        <Options/>
         <Misc />
       </ScrollView>
+      <AbsoluteQRBottom />
     </View>
   );
 };

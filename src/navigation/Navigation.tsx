@@ -8,6 +8,7 @@ import HomeScreen from '../screens/HomeScreen'
 import SendScreen from '../screens/SendScreen'
 import ConnectionScreen from '../screens/ConnectionScreen'
 import SplashScreen from '../screens/SplashScreen'
+import ReceiveScreen from '../screens/ReceiveScreen'
 
 
 
@@ -37,6 +38,10 @@ const Navigation:FC = () => {
              <Stack.Screen 
                 name="SendScreen"
                 component={SendScreen}
+            />
+             <Stack.Screen 
+                name="ReceiveScreen"
+                component={ReceiveScreen}
             />
              
         </Stack.Navigator>
