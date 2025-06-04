@@ -78,8 +78,6 @@ const ReceiveScreen: FC = () => {
   };
 
   const handleGoBack = () => {
-    console.log('intervalRef.current', intervalRef.current);
-
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = null;
