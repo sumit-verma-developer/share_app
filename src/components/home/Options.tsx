@@ -14,8 +14,8 @@ const Options: FC<{
     <View style={optionStyles.container}>
       <TouchableOpacity style={optionStyles.subContainer} onPress={() => {}}>
         <Icon
-          name="image"
-          IconFamily="MaterialIcons"
+          name="image-multiple"
+          IconFamily="MaterialCommunityIcons"
           color={Colors.primary}
           size={20}
         />
@@ -28,8 +28,8 @@ const Options: FC<{
 
       <TouchableOpacity style={optionStyles.subContainer} onPress={() => {}}>
         <Icon
-          name="music-note"
-          IconFamily="MaterialIcons"
+          name="music"
+          IconFamily="MaterialCommunityIcons"
           color={Colors.primary}
           size={20}
         />
@@ -43,7 +43,7 @@ const Options: FC<{
       <TouchableOpacity style={optionStyles.subContainer} onPress={() => {}}>
         <Icon
           name="folder-open"
-          IconFamily="MaterialIcons"
+          IconFamily="MaterialCommunityIcons"
           color={Colors.primary}
           size={20}
         />

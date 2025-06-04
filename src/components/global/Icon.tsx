@@ -19,7 +19,11 @@ const Icon: FC<IconProps> = ({color, size, name, IconFamily}) => {
       )}
 
       {IconFamily === 'MaterialCommunityIcons' && (
-        <MaterialCommunityIcons name={name} color={color} size={RFValue(size)} />
+        <MaterialCommunityIcons
+          name={name}
+          color={color}
+          size={RFValue(size)}
+        />
       )}
       {IconFamily === 'MaterialIcons' && (
         <MaterialIcons name={name} color={color} size={RFValue(size)} />

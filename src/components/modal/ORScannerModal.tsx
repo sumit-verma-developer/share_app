@@ -32,7 +32,6 @@ const ORScannerModal: FC<ModalProps> = ({visible, onClose}) => {
   const [codeFound, setCodeFound] = useState<boolean>(false);
   const [hasPermission, setHasPermission] = useState(false);
   const device = useCameraDevice('back') as any;
-
   const shimmerTranslateX = useSharedValue(-300);
 
   const shimmerStyle = useAnimatedStyle(() => ({

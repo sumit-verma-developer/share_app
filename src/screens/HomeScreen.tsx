@@ -16,7 +16,6 @@ const HomeScreen: FC = () => {
         showsVerticalScrollIndicator={false}
         bounces={false}>
         <SendReceiveButton />
-
         <Options/>
         <Misc />
       </ScrollView>
