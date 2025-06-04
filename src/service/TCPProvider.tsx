@@ -36,8 +36,9 @@ export const useTCP = (): TCPContextType => {
   return context;
 };
 const options = {
-  keystore: require(' .. / .. /tls_certs/server-keystore.p12'),
+  keystore: require('../../tls_certs/server-keystore.p12'),
 };
+
 export const TCPProvider: FC<{children: React.ReactNode}> = ({children}) => {
   const [server, setServer] = useState<any>(null);
   const [client, setClient] = useState<any>(null);
@@ -78,68 +79,97 @@ export const TCPProvider: FC<{children: React.ReactNode}> = ({children}) => {
 
   // START SERVER
   const startServer = useCallback(
-    (port: number) => {
+    async (port: number) => {
       if (server) {
         console.log('Server Already Running');
         return;
       }
 
-      const newServer = TcpSocket.createTLSServer(options, socket => {
-        console.log('Client Connected:', socket.address());
-        setServerSocket(socket);
-        socket.setNoDelay(true);
-        socket.readableHighWaterMark = 1024 * 1024 * 1;
-        socket.writableHighWaterMark = 1024 * 1024 * 1;
+      const tryStartServer = async (portToTry: number): Promise<boolean> => {
+        try {
+          const newServer = TcpSocket.createTLSServer(options, socket => {
+            console.log('Client Connected:', socket.address());
+            setServerSocket(socket);
+            socket.setNoDelay(true);
+            socket.readableHighWaterMark = 1024 * 1024 * 1;
+            socket.writableHighWaterMark = 1024 * 1024 * 1;
 
-        socket.on('data', async data => {
-          const parsedData = JSON.parse(data?.toString());
-          if (parsedData?.event === 'connect') {
-            setIsConnected(true);
-            setConnectedDevice(parsedData?.deviceName);
-          }
+            socket.on('data', async data => {
+              const parsedData = JSON.parse(data?.toString());
+              if (parsedData?.event === 'connect') {
+                setIsConnected(true);
+                setConnectedDevice(parsedData?.deviceName);
+              }
 
-          if (parsedData?.event === 'file_ack') {
-            receiveFileAck(parsedData?.file, socket, setReceivedFiles);
-          }
-          if (parsedData?.event === 'send_chunk_ack') {
-            sendChunkAck(
-              parsedData?.chunkNo,
-              socket,
-              setTotalSentBytes,
-              setSentFiles,
-            );
-          }
-          if (parsedData?.event === 'receive_chunk_ack') {
-            receiveChunkAck(
-              parsedData?.chunk,
-              parsedData?.chunkNo,
-              socket,
-              setTotalReceivedBytes,
-              generateFile,
-            );
-          }
-        });
+              if (parsedData?.event === 'file_ack') {
+                receiveFileAck(parsedData?.file, socket, setReceivedFiles);
+              }
+              if (parsedData?.event === 'send_chunk_ack') {
+                sendChunkAck(
+                  parsedData?.chunkNo,
+                  socket,
+                  setTotalSentBytes,
+                  setSentFiles,
+                );
+              }
+              if (parsedData?.event === 'receive_chunk_ack') {
+                receiveChunkAck(
+                  parsedData?.chunk,
+                  parsedData?.chunkNo,
+                  socket,
+                  setTotalReceivedBytes,
+                  generateFile,
+                );
+              }
+            });
 
-        socket.on('close', () => {
-          console.log('Client Disconnected');
-          setReceivedFiles([]);
-          setSentFiles([]);
-          setCurrentChunkSet(null);
-          setTotalReceivedBytes(0);
-          setChunkStore(null);
-          setIsConnected(false);
-          disconnect();
-        });
+            socket.on('close', () => {
+              console.log('Client Disconnected');
+              setReceivedFiles([]);
+              setSentFiles([]);
+              setCurrentChunkSet(null);
+              setTotalReceivedBytes(0);
+              setChunkStore(null);
+              setIsConnected(false);
+              disconnect();
+            });
 
-        socket.on('error', err => console.error('Socket Error:', err));
-      });
+            socket.on('error', err => console.error('Socket Error:', err));
+          });
 
-      newServer.listen({port, host: '0.0.0.0'}, () => {
-        const address = newServer.address();
-        console.log(`Server running on ${address?.address}:${address?.port}`);
-      });
-      newServer.on('error', err => console.error('Server Error: ', err));
-      setServer(newServer);
+          return new Promise((resolve) => {
+            newServer.on('error', (err: any) => {
+              if (err.code === 'EADDRINUSE') {
+                console.log(`Port ${portToTry} is in use, trying next port...`);
+                resolve(false);
+              } else {
+                console.error('Server Error: ', err);
+                resolve(false);
+              }
+            });
+
+            newServer.listen({port: portToTry, host: '0.0.0.0'}, () => {
+              const address = newServer.address();
+              console.log(`Server running on ${address?.address}:${address?.port}`);
+              setServer(newServer);
+              resolve(true);
+            });
+          });
+        } catch (error) {
+          console.error('Error creating server:', error);
+          return false;
+        }
+      };
+
+      // Try ports from the initial port up to port + 10
+      for (let portToTry = port; portToTry < port + 10; portToTry++) {
+        const success = await tryStartServer(portToTry);
+        if (success) {
+          return;
+        }
+      }
+
+      console.error('Could not find an available port');
     },
     [server, disconnect],
   );
@@ -242,7 +272,7 @@ export const TCPProvider: FC<{children: React.ReactNode}> = ({children}) => {
           const fileIndex = draftFiles?.findIndex(
             (f: any) => f.id === chunkStore.id,
           );
-          if (fileIndex !== -1) {
+          if (fileIndex != -1) {
             draftFiles[fileIndex] = {
               ...draftFiles[fileIndex],
               uri: filePath,

@@ -21,6 +21,8 @@ import CustomText from '../global/CustomText';
 import Icon from '../global/Icon';
 import {Camera, CodeScanner, useCameraDevice} from 'react-native-vision-camera';
 import {checkFilePermissions} from '../../utils/libraryHelpers';
+import {useTCP} from '../../service/TCPProvider';
+import {navigate} from '../../utils/NavigationUtil';
 
 interface ModalProps {
   visible: boolean;
@@ -28,6 +30,8 @@ interface ModalProps {
 }
 
 const ORScannerModal: FC<ModalProps> = ({visible, onClose}) => {
+  const {isConnected, startServer, connectToServer} = useTCP();
+
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [codeFound, setCodeFound] = useState<boolean>(false);
   const [hasPermission, setHasPermission] = useState(false);
@@ -58,12 +62,13 @@ const ORScannerModal: FC<ModalProps> = ({visible, onClose}) => {
     if (!connectionData) return;
     const [host, port] = connectionData.split(':');
     // connectToServer
+    connectToServer(host.trim(), parseInt(port.trim(), 10), deviceName.trim());
   };
 
   const codeScanner = useMemo<CodeScanner>(
     () => ({
       codeTypes: ['qr', 'codabar'],
-      onCodeScanned: (codes) => {
+      onCodeScanned: codes => {
         if (codeFound) {
           return;
         }
@@ -78,6 +83,13 @@ const ORScannerModal: FC<ModalProps> = ({visible, onClose}) => {
     }),
     [codeFound],
   );
+
+  useEffect(() => {
+    if (isConnected) {
+      onClose();
+      navigate('ConnectionScreen ');
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     shimmerTranslateX.value = withRepeat(
